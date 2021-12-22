@@ -102,15 +102,13 @@ app.get("/students",async(request,response)=>{
 
 app.get("/mentor/:name",async(request,response)=>{
     const name=request.params
-    console.log(name)
     const mentor=await getStudesOfMentor(name);
-    console.log(mentor)
     response.send(mentor);
 })
 
 app.put("/mentor/:name",async(request,response)=>{
     const name=request.params;
-
+    
     // get students with unassigned mentors
     const students=await getStudentsMentorNotAssigned();
 
@@ -123,12 +121,13 @@ app.put("/mentor/:name",async(request,response)=>{
     // get student by id
     const student=await getStudentById(id);
     console.log(student)
+
     
-    const result=await client.db("b28wd").collection("mentors").updateOne({name:name},{$push:{students:student}})
+    const result=await client.db("b28wd").collection("mentors").updateOne(name,{ $push: {students:student} })
     console.log(result)
 
-    const mentor= await getStudesOfMentor(name)
-    response.send(mentor)
+    const rstmentor= await getStudesOfMentor(name)
+    response.send(rstmentor)
 })
 
 app.get("/student/:id",async(request,response)=>{
@@ -150,7 +149,7 @@ async function getStudesOfMentor(name) {
 }
 
 async function getStudentById(id) {
-    return await client.db("b28wd").collection("students").findOne({ _id: ObjectId(id) });
+    return await client.db("b28wd").collection("students").findOne({ _id: ObjectId(id) },{projection:{_id:0}});
 }
 
 async function updateStudentById(id) {
